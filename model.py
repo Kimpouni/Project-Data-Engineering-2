@@ -17,6 +17,11 @@ tk = TweetTokenizer()
   
 lemmatizer = WordNetLemmatizer() 
 
+def load_model():
+    model = Doc2Vec.load("model")
+    return model
+
+model = load_model()
 
 # IMPORT DATA
 data = pd.read_csv( 'data/tweets.csv')
@@ -64,7 +69,6 @@ def preprocessList(listText):
     return preprocessed
 
 def get_tweet_similar(user_text):
-    model = Doc2Vec.load("model")
     tokens = tk.tokenize(preprocessText(user_text)[0])
     vector = model.infer_vector(tokens)
     
@@ -101,6 +105,7 @@ def main():
     )
 
     model.save("model")
+
 
 
 
