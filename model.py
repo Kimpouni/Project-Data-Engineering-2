@@ -11,6 +11,11 @@ from nltk.corpus import stopwords
 from nltk.corpus import words
 import string
 import unidecode
+from nltk.stem import WordNetLemmatizer
+from nltk.tokenize import TweetTokenizer 
+tk = TweetTokenizer() 
+  
+lemmatizer = WordNetLemmatizer() 
 
 
 # IMPORT DATA
@@ -32,15 +37,22 @@ def preprocessText(corpus):
 
     # Remove pictures
     regex = r'pic\.twitter\.com.*'
+    corpus.replace('\n','').strip()
+    corpus.replace(u'\u2018',"'").replace(u'\u2019',"'")
+    corpus= re.sub("https*\S+", " ", corpus)
+    
     corpus = re.sub(regex, '', corpus, 0, re.MULTILINE)
+    corpus = re.sub(r'[^\w\s]', '', (corpus))
     preprocessed = list()
     stopset = stopwords.words('english') + list(string.punctuation)
+    
     # remove stop words and punctuations from string.
     # word_tokenize is used to tokenize the input corpus in word tokens.
     corpus = " ".join([i for i in word_tokenize(corpus) if i not in stopset])
     tok_doc = word_tokenize("".join(corpus))    
     stemmed_doc = [ps.stem(word) for word in tok_doc]
-    preprocessed.append(" ".join(stemmed_doc))
+    lemma = [lemmatizer.lemmatize(word) for word in stemmed_doc]
+    preprocessed.append(" ".join(lemma))
     
     return preprocessed
 
@@ -52,10 +64,10 @@ def preprocessList(listText):
     return preprocessed
 
 def get_tweet_similar(user_text):
-
     model = Doc2Vec.load("model")
-    tokens = preprocessText(user_text)
+    tokens = tk.tokenize(preprocessText(user_text)[0])
     vector = model.infer_vector(tokens)
+    
 
     result = []
     for tweet_id, confidence in model.docvecs.most_similar([vector], topn=20):
@@ -72,7 +84,7 @@ def main():
 
     sentences = []
     for ind in data.index:
-        tweet_tokens = data['tokens'][ind]
+        tweet_tokens = tk.tokenize(data['tokens'][ind])
         sentences.append(TaggedDocument(tweet_tokens, [ind]))
 
    
@@ -90,7 +102,6 @@ def main():
 
     model.save("model")
 
-main()
 
 
 
