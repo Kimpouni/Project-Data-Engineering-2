@@ -16,7 +16,7 @@ def submit_txt(txt):
 	i = 1
 	strResult = ""
 	for tweet in top20tw :
-		strResult += '<p> Tweet number '+str(i)+' : '+tweet["text"]+'</p>'
+		strResult += '<p> Tweet number '+str(i)+' : ['+tweet["text"]+"] date : ["+tweet['date']+"] confidence : ["+str(tweet["confidence"])+']</p>'
 		i = i+1
 	return strResult
 
